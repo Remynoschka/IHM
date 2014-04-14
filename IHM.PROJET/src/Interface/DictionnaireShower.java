@@ -249,6 +249,7 @@ public class DictionnaireShower extends javax.swing.JDialog {
         if (texte.getReturnStatus() == TextInputShower.RET_OK){
             ((DefaultListModel) abreviations.getModel()).addElement(texte.getTexte());
             Dictionnaire.INSTANCE.addAbreviation(texte.getTexte());
+            abreviations.setSelectedIndex(abreviations.getModel().getSize()-1);
         }
     }//GEN-LAST:event_addAbrevActionPerformed
 

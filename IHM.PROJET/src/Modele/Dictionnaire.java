@@ -4,10 +4,22 @@
  */
 package Modele;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Dictionnaire d'abreviation. A une abreviation correspond N significations
@@ -16,9 +28,34 @@ import java.util.Set;
 public class Dictionnaire {
     private HashMap<String, List<String>> dico;
     public static final Dictionnaire INSTANCE = new Dictionnaire();
+    private final String DICO_PAHT = "./data/dictionnaire.dic";
+    private File dicoFile;
     
     private Dictionnaire(){
         dico = new HashMap<>();
+        dicoFile = new File(DICO_PAHT);
+        if(!dicoFile.exists()){
+            try {
+                dicoFile.createNewFile();
+            } catch (IOException ex) {
+                Logger.getLogger(Dictionnaire.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            // lit le fichier dictionnaire
+            try(BufferedReader reader = new BufferedReader(new FileReader(dicoFile))){
+                String line = "";
+                while ((line = reader.readLine()) != null){
+                    String[] parse1 = line.split("=");
+                    addAbreviation(parse1[0]);
+                    for (String val : parse1[1].split(":")){
+                        addEntry(parse1[0], val);
+                    }
+                }                              
+            } catch (IOException ex) {
+                Logger.getLogger(Dictionnaire.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
     }
     
     public void setDictionnaire(HashMap<String, List<String>> dico){
@@ -82,5 +119,27 @@ public class Dictionnaire {
      */
     public List<String> getSignifications(String abrev){
         return dico.get(abrev);
+    }
+    
+    /**
+     * Enregistre le dictionnaire
+     */
+    public void save(){
+        try(FileOutputStream fos = new FileOutputStream(dicoFile)){
+            FileChannel fc = fos.getChannel();
+            for (String key : dico.keySet()){
+                String line = key+"=";
+                for (String val : dico.get(key)){
+                    line+=val+":";
+                }
+                line = line.substring(0, line.length()-1);
+                line += System.getProperty("line.separator");
+                ByteBuffer buf = ByteBuffer.wrap(line.getBytes());                
+                fc.write(buf);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Dictionnaire.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
 }

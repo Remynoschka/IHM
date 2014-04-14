@@ -1,5 +1,6 @@
 package Interface;
 
+import Modele.Dictionnaire;
 import Modele.Document;
 import java.awt.event.ActionEvent;
 import java.io.FileInputStream;
@@ -147,6 +148,7 @@ public class Actions {
     public static final Action QUITTER = new AbstractAction("Quitter", null) {
         @Override        
         public void actionPerformed(ActionEvent e) {      
+            Dictionnaire.INSTANCE.save();
             if (Fenetre.INSTANCE.hasEditedText()){
                 int option = JOptionPane.showConfirmDialog(Fenetre.INSTANCE, "Vous êtes sur le point de fermer l'application en ayant des documents qui n'ont pas été sauvegardés. "
                                                                            + "\nVoulez vous sauvegarder avant de continuer ?", "Attention", JOptionPane.YES_NO_CANCEL_OPTION);
@@ -164,6 +166,7 @@ public class Actions {
                         break;
                 }
             } else {
+                
                 Fenetre.INSTANCE.dispose();
                 System.exit(0);
             }
